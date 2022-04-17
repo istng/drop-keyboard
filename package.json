@@ -1,0 +1,27 @@
+{
+  "name": "drop-keyboard",
+  "version": "1.0.0",
+  "description": "simple frontend to add youtube videos with loop timestamp segments and hook each segment with a given key",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/istng/drop-keyboard.git"
+  },
+  "keywords": [
+    "drop",
+    "keyboard"
+  ],
+  "author": "ivan gk, istng",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/istng/drop-keyboard/issues"
+  },
+  "homepage": "https://github.com/istng/drop-keyboard#readme",
+  "dependencies": {
+    "ejs": "^3.1.6",
+    "express": "^4.17.3"
+  }
+}

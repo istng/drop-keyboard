@@ -1,0 +1,149 @@
+<!doctype html>
+<html>
+
+<head>
+    <script src="https://vjs.zencdn.net/7.18.0/video.js"></script>
+    <link href="https://vjs.zencdn.net/7.18.1/video-js.css" rel="stylesheet" />
+    <script src="https://unpkg.com/videojs-abloop/dist/videojs-abloop.min.js"></script>
+    <script src="https://unpkg.com/videojs-youtube@2.6.0/dist/Youtube.min.js"></script>
+</head>
+
+<body>
+    <div id="app-container">
+        <video
+            id="vid1"
+            class="video-js vjs-default-skin"
+            controls
+            autoplay
+            width="640" height="264"
+            data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}], "youtube": { "ytControls": 2 } }'
+            >
+        </video>
+        <video
+            id="vid2"
+            class="video-js vjs-default-skin"
+            controls
+            autoplay
+            width="640" height="264"
+            data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}], "youtube": { "ytControls": 2 } }'
+            >
+        </video>
+        <input type="text" id="source-input" >
+        <button onclick="changeVideoSource()">S</button>
+        <input type="text" id="timestamp-key-input" >
+        <button onclick="changeTimestamps()">TS</button>
+        <input type="text" id="current-player" >
+        <button onclick="changeCurrentPlayer()">P</button>
+        <br>
+        <button onclick="downloadTrack()">Download track</button>
+        <br>
+        <input id="uploadTrack" type="file" accept="application/json" />
+    </div>
+    <style type="text/css">
+        html, body {
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+    </style>
+
+    <script>
+        var player = videojs("vid1", {
+            plugins: {
+                abLoopPlugin: {}
+            },
+        });
+        player.ready(function() {
+            this.abLoopPlugin.setStart(5).setEnd(9).playLoop();
+        });
+        var player2 = videojs("vid2", {
+            plugins: {
+                abLoopPlugin: {}
+            },
+        });
+        player2.ready(function() {
+            this.abLoopPlugin.setStart(5).setEnd(9).playLoop();
+        });
+
+        var track1 = {};
+        track1[player.src().split("=")[1]] = {};
+        var track2 = {};
+        track2[player2.src().split("=")[1]] = {};
+        var trackList = [track1, track2];
+        
+        var currentPlayer = player;
+        var currentOfPlayerIndex = 0;
+
+        function changeTimestamps() {
+            trackList[currentOfPlayerIndex][document.getElementById("timestamp-key-input").value.split(',')[2]] = {
+                start: parseFloat(document.getElementById("timestamp-key-input").value.split(',')[0]),
+                end: parseFloat(document.getElementById("timestamp-key-input").value.split(',')[1])
+            }
+        }
+
+        function changeVideoSource() {
+            currentPlayer.src({type: 'video/youtube', src: document.getElementById("source-input").value});
+        }
+
+        function changeCurrentPlayer() {
+            if(document.getElementById("source-input").value == "1") {
+                currentPlayer = player;
+                currentOfPlayerIndex = 0;
+            } else {
+                currentPlayer = player2;
+                currentOfPlayerIndex = 1;
+            }
+        }
+
+        var playPause = false;
+        document.addEventListener('keydown', (e) => {
+            console.log(e.key)
+            if(e.key == "q") {
+                if(playPause) {
+                    currentPlayer.play();
+                    playPause = false;
+                } else {
+                    currentPlayer.pause();
+                    playPause = true;
+                }
+            }
+            if(trackList[currentOfPlayerIndex][e.key] != undefined) {
+                    currentPlayer.abLoopPlugin.setStart(trackList[currentOfPlayerIndex][e.key].start).setEnd(trackList[currentOfPlayerIndex][e.key].end);
+                    currentPlayer.currentTime(trackList[currentOfPlayerIndex][e.key].start);
+                    currentPlayer.play();
+            }
+        });
+
+        function downloadTrack() {
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(trackList));
+            var downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href",     dataStr);
+            downloadAnchorNode.setAttribute("download",  "track.json");
+            document.body.appendChild(downloadAnchorNode); // required for firefox
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        document.getElementById('uploadTrack').onchange = function(evt) {
+        try {
+            let files = evt.target.files;
+            if (!files.length) {
+                alert('No file selected!');
+                return;
+            }
+            let file = files[0];
+            let reader = new FileReader();
+            const self = this;
+            reader.onload = (event) => {
+                trackList = JSON.parse(event.target.result);
+                console.log('FILE CONTENT', typeof event.target.result);
+            };
+            reader.readAsText(file);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+    </script>
+</body>
+
+</html>
