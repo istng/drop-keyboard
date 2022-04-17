@@ -10,40 +10,60 @@
 
 <body>
     <div id="app-container">
-        <video
-            id="vid1"
-            class="video-js vjs-default-skin"
-            controls
-            autoplay
-            width="640" height="264"
-            data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}], "youtube": { "ytControls": 2 } }'
-            >
-        </video>
-        <video
-            id="vid2"
-            class="video-js vjs-default-skin"
-            controls
-            autoplay
-            width="640" height="264"
-            data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}], "youtube": { "ytControls": 2 } }'
-            >
-        </video>
-        <input type="text" id="source-input" >
-        <button onclick="changeVideoSource()">S</button>
-        <input type="text" id="timestamp-key-input" >
-        <button onclick="changeTimestamps()">TS</button>
-        <input type="text" id="current-player" >
-        <button onclick="changeCurrentPlayer()">P</button>
-        <br>
-        <button onclick="downloadTrack()">Download track</button>
-        <br>
-        <input id="uploadTrack" type="file" accept="application/json" />
+        <div class="keyboard-configuration">
+            <input size="10" type="text" id="source-input" >
+            <button onclick="changeVideoSource()">Url</button>
+            <input size="4" type="text" id="timestamp-key-input" >
+            <button onclick="changeTimestamps()">S,E,K</button>
+            <input size="1" type="text" id="current-player" >
+            <button onclick="changeCurrentPlayer()">Player</button>
+        </div>
+        <div class="videos-container">
+            <video
+                id="vid1"
+                class="video-js"
+                width="640" height="480"
+                controls
+                autoplay
+                data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}] }'
+                >
+            </video>
+            <video
+                id="vid2"
+                class="video-js"
+                width="640" height="480"
+                controls
+                data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}] }'
+                >
+            </video>
+        </div>
+        <div class="json-files">
+            <button onclick="downloadTrack()">Download track</button>
+            <input id="uploadTrack" type="file" accept="application/json" />
+        </div>
     </div>
     <style type="text/css">
         html, body {
             margin: 0;
             padding: 0;
             border: 0;
+        }
+        .keyboard-configuration {
+            display: flex;
+            justify-content: center;
+        }
+        button, input {
+            font-size: x-large;
+        }
+        .videos-container {
+            display: flex;
+            justify-content: center;
+        }
+        .json-files {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            align-items: center;
         }
     </style>
 
