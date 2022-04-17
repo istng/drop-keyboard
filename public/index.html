@@ -17,6 +17,8 @@
             <button onclick="changeTimestamps()">S,E,K</button>
             <input size="1" type="text" id="current-player" >
             <button onclick="changeCurrentPlayer()">Player</button>
+            <input size="3" type="text" id="playback-rate-input" >
+            <button onclick="changePlaybackRate()">Speed</button>
         </div>
         <div class="videos-container">
             <video
@@ -25,16 +27,14 @@
                 width="640" height="480"
                 controls
                 autoplay
-                data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}] }'
-                >
+                data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}] }'                >
             </video>
             <video
                 id="vid2"
                 class="video-js"
                 width="640" height="480"
                 controls
-                data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}] }'
-                >
+                data-setup='{ "techOrder": ["youtube"], "sources": [{ "type": "video/youtube", "src": "https://www.youtube.com/watch?v=TQpv7tV7LCc"}] }'                >
             </video>
         </div>
         <div class="json-files">
@@ -85,11 +85,8 @@
             this.abLoopPlugin.setStart(5).setEnd(9).playLoop();
         });
 
-        var track1 = {};
-        track1[player.src().split("=")[1]] = {};
-        var track2 = {};
-        track2[player2.src().split("=")[1]] = {};
-        var trackList = [track1, track2];
+        var trackList = [{urlId: player.src().split("=")[1], playbackRate: 1}, {urlId: player2.src().split("=")[1], playbackRate: 1}];
+        var players = [player, player2];
         
         var currentPlayer = player;
         var currentOfPlayerIndex = 0;
@@ -103,6 +100,7 @@
 
         function changeVideoSource() {
             currentPlayer.src({type: 'video/youtube', src: document.getElementById("source-input").value});
+            trackList[currentOfPlayerIndex].urlId = currentPlayer.src().split("=")[1]
         }
 
         function changeCurrentPlayer() {
@@ -144,6 +142,13 @@
             downloadAnchorNode.remove();
         }
 
+        function changeSources() {
+            for (var i = trackList.length - 1; i >= 0; i--) {
+                players[i].src({type: 'video/youtube', src: "https://www.youtube.com/watch?v="+trackList[i].urlId});
+                players[i].playbackRate(trackList[i].playbackRate)
+            }
+        }
+
         document.getElementById('uploadTrack').onchange = function(evt) {
         try {
             let files = evt.target.files;
@@ -155,13 +160,21 @@
             let reader = new FileReader();
             const self = this;
             reader.onload = (event) => {
+                console.log(trackList)
                 trackList = JSON.parse(event.target.result);
-                console.log('FILE CONTENT', typeof event.target.result);
+                changeSources();
+                console.log('FILE CONTENT', event.target.result);
             };
             reader.readAsText(file);
         } catch (err) {
             console.error(err);
         }
+    }
+
+    function changePlaybackRate() {
+        var newPlayBackRate = parseFloat(document.getElementById("playback-rate-input").value);
+        currentPlayer.playbackRate(newPlayBackRate);
+        trackList[currentOfPlayerIndex].playbackRate = newPlayBackRate;
     }
     </script>
 </body>
