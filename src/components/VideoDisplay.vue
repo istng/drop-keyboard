@@ -10,6 +10,7 @@
     <TimelineKeyboard v-if="timelineLength!=0" :timelineLength="timelineLength" :buttonLetters="buttonLetters"
     />
         <div>{{ buttonLetters }}</div>
+  <button > T </button>
   </div>
 </template>
 
@@ -74,6 +75,12 @@ export default defineComponent({
             }
         });
       })
+      document.addEventListener('keydown', (e) => {
+          console.log(e.key)
+          if(e.key == 't') {
+              player.abLoopPlugin.togglePauseAfterLooping();
+          }
+      });
     });
     return {
       videoPlayer,
