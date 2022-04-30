@@ -13,7 +13,6 @@
 
 <style>
   .timeline-bar {
-    margin-top: 10px;
     border-bottom: 10px red solid;
     border-radius: 100px;
     box-sizing: border-box;

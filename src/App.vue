@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VideoDisplay :videoUrl="videoUrl" :buttonLetters="firstVideoButtonLetters" />
+    <VideoDisplay :defaultVideoUrl="firstVideoUrl" :buttonLetters="firstVideoButtonLetters" />
   </div>
 </template>
 
@@ -31,18 +31,18 @@ export default {
           letter: 'w end',
           time: 10
         },       {
-          letter: 'r start',
+          letter: 'e start',
           time: 14,
           key: 'r'
         }, {
-          letter: 'r end',
+          letter: 'e end',
           time: 22
         }, {
-          letter: 'e start',
+          letter: 'r start',
           time: 33,
           key: 'e'
         },       {
-          letter: 'e end',
+          letter: 'r end',
           time: 37
         }
       ]);
@@ -51,9 +51,9 @@ export default {
         //player.abLoopPlugin.setStart(e.detail.time)
         console.log(e.detail);
       });
-    var videoUrl = 'https://www.youtube.com/watch?v=U1FxfR3lg6Q';
+    var firstVideoUrl = 'https://www.youtube.com/watch?v=U1FxfR3lg6Q';
       return {
-        videoUrl,
+        firstVideoUrl,
         firstVideoButtonLetters
       };
   }

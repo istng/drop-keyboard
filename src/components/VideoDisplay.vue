@@ -7,14 +7,32 @@
       class="video-js vjs-default-skin vjs-16-9"
     >
     </video>
+    <div class="url-and-loop-key-container">
+      <div></div> <input class="video-url-input" v-model="videoUrl" placeholder="{{defaultVideoUrl}}"> <p class="loop-key"> T </p>
+    </div>
     <TimelineKeyboard v-if="timelineLength!=0" :timelineLength="timelineLength" :buttonLetters="buttonLetters"
     />
-        <div>{{ buttonLetters }}</div>
-  <button > T </button>
   </div>
 </template>
 
 <style>
+.url-and-loop-key-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.video-url-input {
+  border-radius: 5px;
+  align-self: center;
+  margin-right: 10px;
+}
+.loop-key {
+  align-self: center;
+  justify-self: start;
+  background: blue;
+  border-radius: 5px;
+  padding: 4px;
+  text-align: center;
+}
 </style>
 
 <script>
@@ -37,12 +55,13 @@ export default defineComponent({
     TimelineKeyboard
   },
   props: {
-    videoUrl: String,
+    defaultVideoUrl: String,
     buttonLetters: Array
   },
   setup(props) {
     var videoPlayer = ref(null);
     var timelineLength = ref(0);
+    var videoUrl = ref(props.defaultVideoUrl);
 
     onMounted(() => {
       var videoElement = videoPlayer.value;
@@ -50,7 +69,7 @@ export default defineComponent({
         "techOrder": ["youtube"],
         "sources": [{
           "type": "video/youtube",
-          "src": props.videoUrl
+          "src": props.defaultVideoUrl
         }],
         plugins: {
           abLoopPlugin: {}
@@ -70,7 +89,7 @@ export default defineComponent({
             if(e.key == buttonLetter.key) {
                 player.abLoopPlugin.setStart(buttonLetter.time);
                 player.abLoopPlugin.setEnd(props.buttonLetters[index+1].time);
-                player.currentTime(buttonLetter.time);
+                player.abLoopPlugin.playLoop();
                 player.play();
             }
         });
@@ -78,13 +97,15 @@ export default defineComponent({
       document.addEventListener('keydown', (e) => {
           console.log(e.key)
           if(e.key == 't') {
-              player.abLoopPlugin.togglePauseAfterLooping();
+              player.abLoopPlugin.togglePauseAfterLooping();   
           }
       });
     });
+
     return {
       videoPlayer,
-      timelineLength
+      timelineLength,
+      videoUrl
     };
   },
 });
