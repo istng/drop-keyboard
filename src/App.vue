@@ -1,6 +1,6 @@
 <template>
   <div>
-    <VideoDisplay :defaultVideoUrl="firstVideoUrl" :buttonLetters="firstVideoButtonLetters" />
+    <VideoDisplay class="video-display" :defaultVideoUrl="firstVideoUrl" :buttonLetters="firstVideoButtonLetters" />
   </div>
 </template>
 
@@ -13,7 +13,7 @@ import VideoDisplay from './components/VideoDisplay.vue';
 export default {
   name: 'App',
   components: {
-    VideoDisplay,
+    VideoDisplay
   },
   setup() {
     var firstVideoButtonLetters = ref([{
@@ -33,21 +33,25 @@ export default {
         },       {
           letter: 'e start',
           time: 14,
-          key: 'r'
+          key: 'e'
         }, {
           letter: 'e end',
           time: 22
         }, {
           letter: 'r start',
           time: 33,
-          key: 'e'
+          key: 'r'
         },       {
           letter: 'r end',
           time: 37
         }
       ]);
-      document.addEventListener('offset-change', (e) => {
+      document.addEventListener('segment-offset-change', (e) => {
         firstVideoButtonLetters.value.find(buttonLetter => buttonLetter.letter == e.detail.letter).time = e.detail.time;
+        //player.abLoopPlugin.setStart(e.detail.time)
+        console.log(e.detail);
+      });
+      document.addEventListener('level-offset-change', (e) => {
         //player.abLoopPlugin.setStart(e.detail.time)
         console.log(e.detail);
       });
@@ -61,6 +65,11 @@ export default {
 </script>
 
 <style>
+body, html {
+  padding: 0;
+  margin: 0;
+  background: #2a2930;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

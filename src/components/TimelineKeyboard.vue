@@ -4,7 +4,7 @@
     <div class="under-timeline-bar">
       <p id="timeline-length-start">0</p>
       <div class="timeline-buttons-container" id="timeline-buttons-container">
-        <DragableElement v-for="buttonLetter in buttonLetters" :key="buttonLetter.letter" :innerText="buttonLetter.letter" :totalLength="timelineLength" :positionOffset="buttonLetter.time" v-bind:id="'timeline-button-' + buttonLetter.letter" @offset-change="logTimeChange"  />
+        <DragableElementOnXAxis v-for="buttonLetter in buttonLetters" :key="buttonLetter.letter" :innerText="buttonLetter.letter" :totalLength="timelineLength" :positionOffset="buttonLetter.time" @offset-change="logTimeChange" :width="width" />
       </div>
       <p id="timeline-length-end">{{timelineLength}}</p>
     </div>
@@ -13,7 +13,7 @@
 
 <style>
   .timeline-bar {
-    border-bottom: 10px red solid;
+    border-bottom: 10px #64a2bb solid;
     border-radius: 100px;
     box-sizing: border-box;
     width: 90%;
@@ -30,12 +30,14 @@
   #timeline-length-start {
     justify-self: start;
     position: absolute;
-    left: 5%;
+    left: 3%;
+    color: aliceblue;
   }
   #timeline-length-end {
     justify-self: end;
     position: absolute;
-    left: 94%;
+    padding-right: 20px;
+    color: aliceblue;
   }
 </style>
 
@@ -43,16 +45,17 @@
 import {
   defineComponent,
 } from "vue";
-import DragableElement from './DragableElement.vue';
+import DragableElementOnXAxis from './DragableElementOnXAxis.vue';
 
 export default defineComponent({
   name: "TimelineKeyboard",
   components: {
-    DragableElement
+    DragableElementOnXAxis
   },
   props: {
     buttonLetters: Array,
-    timelineLength: Number
+    timelineLength: Number,
+    width: Number
   },
   setup() {
     const logTimeChange = e => {

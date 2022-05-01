@@ -1,22 +1,30 @@
 <template id="myComponent">
-    <h3  ref="el" class="dragable" :style="style">{{innerText}}</h3>
+    <h3  ref="el" class="dragableX" :style="style" v-bind:id='innerText.split(" ")[1]' >{{innerText[0].toUpperCase()}}</h3>
 </template>
 
 <style>
-.dragable {
-  color: rgb(6, 19, 29);
-  background-color: rgb(187, 195, 209);
+.dragableX {
   border-radius: 16px;
   touch-action: none;
   user-select: none;
   -webkit-transform: translate(0px, 0px);
   transform: translate(0px, 0px);
   transition: transform 0.1s ease-in, box-shadow 0.1s ease-out;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 5px;
 }
 
 pre {
   overflow: hidden;
   font-size: 10px;
+}
+
+#start {
+  background-color: #7ddf92;
+}
+#end {
+  background-color: #e4513f;
 }
 </style>
 
@@ -26,11 +34,10 @@ import {
     reactive,
     computed,
     ref,
-    watch,
-    onMounted
+    watch
 } from "vue";
 
-const makeDragable = (element, innerText, windowWidth, oldWindowWidth, positionOffset, totalLength, handleUpdate) => {
+const makeDragable = (element, innerText, videoWidth, oldvideoWidth, positionOffset, totalLength) => {
   const position = reactive({
     init: false,
     x: 0,
@@ -44,24 +51,18 @@ const makeDragable = (element, innerText, windowWidth, oldWindowWidth, positionO
 
   const style = computed(() => {
     if (position.init) {
-      //console.log('computed init', position);
       return {
         position: "absolute",
         left: position.x + "px",
-        //top: position.y + "px",
-        //width: position.width + "px",
-        //height: position.height + "px",
         "box-shadow": position.isDraging ? "3px 6px 16px rgba(0, 0, 0, 0.15)" : "",
         "transform": position.isDraging ? "translate(-3px, -6px)" : "",
         "cursor": position.isDraging ? "grab" : "pointer",
       };
     }
-    //console.log('computed not init')
     return {};
   });
 
   const onMouseDown = e => {
-    //console.log('mousedown')
     e.stopPropagation();
     let {
       clientX
@@ -75,20 +76,17 @@ const makeDragable = (element, innerText, windowWidth, oldWindowWidth, positionO
   };
 
   const onMouseMove = e => {
-    //console.log('mousemove')
     e.stopPropagation();
     let {
       clientX
     } = e;
     position.x = clientX - position.dragStartX;
-    positionOffset = ( position.x / windowWidth.value - 0.05 ) * ( totalLength / 0.9 );
+    positionOffset = ( position.x / videoWidth.value - 0.05 ) * ( totalLength / 0.9 );
     console.log(positionOffset)
-    document.dispatchEvent(new CustomEvent('offset-change', {'detail': {'time':positionOffset,'letter':innerText}}));
-    handleUpdate({'time':positionOffset,'letter':innerText});
+    document.dispatchEvent(new CustomEvent('segment-offset-change', {'detail': {'time':positionOffset,'letter':innerText}}));
   };
 
   const onMouseUp = e => {
-    //console.log('mouseup')
     e.stopPropagation();
     position.isDraging = false;
     position.dragStartX = null;
@@ -97,21 +95,16 @@ const makeDragable = (element, innerText, windowWidth, oldWindowWidth, positionO
   };
 
   const onResize = () => {
-    //console.log('resize')
-    //console.log(position.x, windowWidth.value)
-    position.x = position.x * ( windowWidth.value / oldWindowWidth.value );
+    position.x = position.x * ( videoWidth.value / oldvideoWidth.value );
   };
 
   watch(element, element => {
-    //console.log('watch')
     if (!(element instanceof HTMLElement)) return;
-    //console.log('watch things')
     let rect = element.getBoundingClientRect(element);
     position.init = true;
     if(totalLength > 0) {
-      position.x = windowWidth.value * ( (positionOffset / totalLength) * 0.9 + 0.05);
+      position.x = videoWidth.value * ( (positionOffset / totalLength) * 0.9 + 0.05);
     }
-    console.log('hijo de puta', windowWidth.value , positionOffset , totalLength)
     position.width = Math.round(rect.width);
     position.height = Math.round(rect.height);
 
@@ -119,11 +112,10 @@ const makeDragable = (element, innerText, windowWidth, oldWindowWidth, positionO
     window.addEventListener("resize", onResize);
   });
 
-  watch(windowWidth, (windowWidth, oldWindowWidth) => {
-    console.log('watch windoWidth', windowWidth, oldWindowWidth)
+  watch(videoWidth, (videoWidth, oldvideoWidth) => {
+    console.log('watch windoWidth', videoWidth, oldvideoWidth)
   })
 
-  //console.log('last return', position)
   return {
     position,
     style
@@ -131,39 +123,28 @@ const makeDragable = (element, innerText, windowWidth, oldWindowWidth, positionO
 };
 
 export default defineComponent({
-  name: "DragableElement",
+  name: "DragableElementOnXAxis",
   props: {
     innerText: String,
     positionOffset: Number,
-    totalLength: Number
+    totalLength: Number,
+    width: Number
   },
-  setup(props, context) {
-      var windowWidth = ref(window.innerWidth);
-      var oldWindowWidth = ref(window.innerWidth);
-      const handleUpdate = (value) => {
-        context.emit('offset-change', value)
-      }
+  setup(props) {
+      var videoWidth = ref(props.width);
+      var oldvideoWidth = ref(props.width);
       const el = ref(null);
       const {
       position,
       style
-      } = makeDragable(el, props.innerText, windowWidth, oldWindowWidth, props.positionOffset, props.totalLength, handleUpdate);
-
-      onMounted(() => {
-        window.addEventListener('resize', () => {
-          oldWindowWidth = windowWidth.value;
-          windowWidth.value = window.innerWidth;
-          //console.log('eventlistener update windowWidth', windowWidth.value)
-        });
-      })
+      } = makeDragable(el, props.innerText, videoWidth, oldvideoWidth, props.positionOffset, props.totalLength);
 
       return {
       el,
       position,
       style,
-      windowWidth,
-      oldWindowWidth,
-      handleUpdate
+      videoWidth,
+      oldvideoWidth
       };
   },
 });
