@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <VideoDisplay class="video-display" :defaultVideoUrl="firstVideoUrl" :buttonLetters="firstVideoButtonLetters" />
+  <div class='video-displays-container'>
+    <VideoDisplay class="video-display" :identificator="'first'" :defaultVideoUrl="firstVideoUrl" :buttonLetters="firstVideoButtonLetters" />
+    <VideoDisplay class="video-display" :identificator="'second'" :defaultVideoUrl="secondVideoUrl" :buttonLetters="secondVideoButtonLetters" />
   </div>
 </template>
 
@@ -46,8 +47,41 @@ export default {
           time: 37
         }
       ]);
+    var secondVideoButtonLetters = ref([{
+          letter: 'u start',
+          time: 2,
+          key: 'u'
+        }, {
+          letter: 'u end',
+          time: 4
+        }, {
+          letter: 'i start',
+          time: 7,
+          key: 'i'
+        }, {
+          letter: 'i end',
+          time: 10
+        },       {
+          letter: 'o start',
+          time: 14,
+          key: 'o'
+        }, {
+          letter: 'o end',
+          time: 22
+        }, {
+          letter: 'p start',
+          time: 33,
+          key: 'p'
+        },       {
+          letter: 'p end',
+          time: 37
+        }
+      ]);
       document.addEventListener('segment-offset-change', (e) => {
-        firstVideoButtonLetters.value.find(buttonLetter => buttonLetter.letter == e.detail.letter).time = e.detail.time;
+        if(e.detail.group == 'first')
+          firstVideoButtonLetters.value.find(buttonLetter => buttonLetter.letter == e.detail.letter).time = e.detail.time;
+        if(e.detail.group == 'second')
+          secondVideoButtonLetters.value.find(buttonLetter => buttonLetter.letter == e.detail.letter).time = e.detail.time;
         //player.abLoopPlugin.setStart(e.detail.time)
         console.log(e.detail);
       });
@@ -56,9 +90,12 @@ export default {
         console.log(e.detail);
       });
     var firstVideoUrl = 'https://www.youtube.com/watch?v=U1FxfR3lg6Q';
+    var secondVideoUrl = 'https://www.youtube.com/watch?v=U1FxfR3lg6Q';
       return {
         firstVideoUrl,
-        firstVideoButtonLetters
+        firstVideoButtonLetters,
+        secondVideoUrl,
+        secondVideoButtonLetters
       };
   }
 }
@@ -77,5 +114,10 @@ body, html {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.video-displays-container {
+  display: flex;
+  justify-content: space-around;
 }
 </style>

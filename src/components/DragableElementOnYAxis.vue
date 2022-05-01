@@ -32,7 +32,7 @@ import {
     watch
 } from "vue";
 
-const makeDragable = (element, innerText, videoHeight, positionOffset) => {
+const makeDragable = (element, innerText, videoHeight, positionOffset, videoIdentificator) => {
   const position = reactive({
     init: false,
     x: 0,
@@ -76,7 +76,7 @@ const makeDragable = (element, innerText, videoHeight, positionOffset) => {
       clientY
     } = e;
     position.y = clientY - position.dragStartY;
-    document.dispatchEvent(new CustomEvent('level-offset-change', {'detail': {'level':((videoHeight.value - position.y) / (videoHeight.value - 100)).toFixed(2),'letter':innerText}}));
+    document.dispatchEvent(new CustomEvent('level-offset-change', {'detail': {'level':((videoHeight.value - position.y) / (videoHeight.value - 100)).toFixed(2),'letter':innerText, 'video':videoIdentificator}}));
   };
 
   const onMouseUp = e => {
@@ -109,7 +109,8 @@ export default defineComponent({
   props: {
     innerText: String,
     positionOffset: Number,
-    height: Number
+    height: Number,
+    videoIdentificator: String
   },
   setup(props) {
       var videoHeight = ref(props.height);
@@ -118,7 +119,7 @@ export default defineComponent({
       const {
       position,
       style
-      } = makeDragable(el, props.innerText, videoHeight, props.positionOffset);
+      } = makeDragable(el, props.innerText, videoHeight, props.positionOffset, props.videoIdentificator);
 
       return {
       el,

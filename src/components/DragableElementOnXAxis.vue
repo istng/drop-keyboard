@@ -13,6 +13,7 @@
   padding-left: 5px;
   padding-right: 5px;
   padding-top: 5px;
+  position: inherit;
 }
 
 pre {
@@ -34,10 +35,11 @@ import {
     reactive,
     computed,
     ref,
-    watch
+    watch,
+    onMounted
 } from "vue";
 
-const makeDragable = (element, innerText, videoWidth, oldvideoWidth, positionOffset, totalLength) => {
+const makeDragable = (element, innerText, videoWidth, oldvideoWidth, positionOffset, length, videoIdentificator) => {
   const position = reactive({
     init: false,
     x: 0,
@@ -81,9 +83,10 @@ const makeDragable = (element, innerText, videoWidth, oldvideoWidth, positionOff
       clientX
     } = e;
     position.x = clientX - position.dragStartX;
-    positionOffset = ( position.x / videoWidth.value - 0.05 ) * ( totalLength / 0.9 );
+    positionOffset = ( position.x / videoWidth.value - 0.05 ) * ( length.value / 0.9 );
+    console.log(length.value);
     console.log(positionOffset)
-    document.dispatchEvent(new CustomEvent('segment-offset-change', {'detail': {'time':positionOffset,'letter':innerText}}));
+    document.dispatchEvent(new CustomEvent('segment-offset-change', {'detail': {'time':positionOffset,'letter':innerText, 'group':videoIdentificator}}));
   };
 
   const onMouseUp = e => {
@@ -102,8 +105,8 @@ const makeDragable = (element, innerText, videoWidth, oldvideoWidth, positionOff
     if (!(element instanceof HTMLElement)) return;
     let rect = element.getBoundingClientRect(element);
     position.init = true;
-    if(totalLength > 0) {
-      position.x = videoWidth.value * ( (positionOffset / totalLength) * 0.9 + 0.05);
+    if(length.value > 0) {
+      position.x = videoWidth.value * ( (positionOffset / length.value) * 0.9 + 0.05);
     }
     position.width = Math.round(rect.width);
     position.height = Math.round(rect.height);
@@ -116,10 +119,10 @@ const makeDragable = (element, innerText, videoWidth, oldvideoWidth, positionOff
     console.log('watch windoWidth', videoWidth, oldvideoWidth)
   })
 
-  return {
+  return [
     position,
     style
-  };
+  ];
 };
 
 export default defineComponent({
@@ -128,23 +131,34 @@ export default defineComponent({
     innerText: String,
     positionOffset: Number,
     totalLength: Number,
-    width: Number
+    width: Number,
+    videoIdentificator: String
   },
   setup(props) {
       var videoWidth = ref(props.width);
       var oldvideoWidth = ref(props.width);
+      var length = ref(props.totalLength);
       const el = ref(null);
-      const {
-      position,
-      style
-      } = makeDragable(el, props.innerText, videoWidth, oldvideoWidth, props.positionOffset, props.totalLength);
+
+      const positionAndStyle = makeDragable(el, props.innerText, videoWidth, oldvideoWidth, props.positionOffset, length, props.videoIdentificator);
+      var position = positionAndStyle[0];
+      var style = positionAndStyle[1];
+
+    onMounted(() => {
+      document.addEventListener('total-length-change', (e) => {
+        if(e.detail.video == props.videoIdentificator) {
+          length.value = e.detail.length;
+        }
+      });
+    });
 
       return {
       el,
       position,
       style,
       videoWidth,
-      oldvideoWidth
+      oldvideoWidth,
+      length
       };
   },
 });

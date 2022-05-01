@@ -3,18 +3,18 @@
     <div>
       <video
         ref="videoPlayer"
-        id="video"
+        v-bind:id="'video'+identificator"
         class="video-js vjs-default-skin vjs-16-9"
       >
       </video>
       <div class="url-and-loop-key-container">
         <div></div> <input class="video-url-input" v-model="videoUrl" placeholder="{{defaultVideoUrl}}"  @input="changeVideoUrlEvent"> <p class="loop-key"> T </p>
       </div>
-      <TimelineKeyboard v-if="timelineLength!=0 && videoWidth!=0" :timelineLength="timelineLength" :buttonLetters="buttonLetters" :width="videoWidth"
+      <TimelineKeyboard v-if="timelineLength!=0 && videoWidth!=0" :timelineLength="timelineLength" :buttonLetters="buttonLetters" :width="videoWidth" :videoIdentificator="identificator"
       />
     </div>
-    <LevelSlider v-if="videoHeight!=0" class="level-slider" :height="videoHeight" :letter="'S'" :positionOffset="0.5" />
-    <LevelSlider v-if="videoHeight!=0" class="level-slider volume-slider" :height="videoHeight" :letter="'V'" :positionOffset="0.97" />
+    <LevelSlider v-if="videoHeight!=0" class="level-slider" :height="videoHeight" :letter="'S'" :positionOffset="0.5" :videoIdentificator="identificator" />
+    <LevelSlider v-if="videoHeight!=0" class="level-slider volume-slider" :height="videoHeight" :letter="'V'" :positionOffset="0.97" :videoIdentificator="identificator" />
   </div>
 </template>
 
@@ -73,7 +73,8 @@ export default defineComponent({
   },
   props: {
     defaultVideoUrl: String,
-    buttonLetters: Array
+    buttonLetters: Array,
+    identificator: String
   },
   setup(props) {
     var videoPlayer = ref(null);
@@ -85,7 +86,7 @@ export default defineComponent({
     var lastKeyPressed = ref(props.buttonLetters[0].key);
 
     const changeVideoUrlEvent = (e) => {
-      document.dispatchEvent(new CustomEvent('video-url-change', {'detail': e}));
+      document.dispatchEvent(new CustomEvent('video-url-change', {'detail': {'url':e.data, 'video':props.identificator}}));
     };
 
 
@@ -108,6 +109,7 @@ export default defineComponent({
       });
       player.on('loadedmetadata', function() {
         timelineLength.value = player.duration();
+        document.dispatchEvent(new CustomEvent('total-length-change', {'detail': {'length':timelineLength.value, 'video':props.identificator}}));
       });
 
       props.buttonLetters.forEach((buttonLetter, index) => {
@@ -131,16 +133,19 @@ export default defineComponent({
       });
 
       document.addEventListener('level-offset-change', (e) => {
-        if(e.detail.letter == "S") {
-          player.playbackRate(e.detail.level * 2);
-        }
-        if(e.detail.letter == "V") {
-          player.volume(e.detail.level);
+        if(e.detail.video == props.identificator) {
+          if(e.detail.letter == "S") {
+            player.playbackRate(e.detail.level * 2);
+          }
+          if(e.detail.letter == "V") {
+            player.volume(e.detail.level);
+          }
         }
       });
 
       document.addEventListener('video-url-change', (e) => {
-        player.src({src: e.detail.data, type: "video/youtube"});
+        if(e.detail.video == props.identificator)
+          player.src({src: e.detail.url, type: "video/youtube"});
       });
     });
 

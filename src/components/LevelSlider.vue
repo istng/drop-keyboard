@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="level-bar"></div>
-    <DragableElementOnYAxis :innerText="letter" :positionOffset="positionOffset" :height="height" />
+    <DragableElementOnYAxis :innerText="letter" :positionOffset="positionOffset" :height="height" :videoIdentificator="videoIdentificator" />
   </div>
 </template>
 
@@ -29,7 +29,8 @@ export default defineComponent({
   props: {
     letter: String,
     positionOffset: Number,
-    height: Number
+    height: Number,
+    videoIdentificator: String
   },
   setup(props) {
     var levelBarHeight = ref((props.height - 100).toString()+"px")
