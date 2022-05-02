@@ -8,7 +8,7 @@
       >
       </video>
       <div class="url-and-loop-key-container">
-        <div></div> <input class="video-url-input" v-model="videoUrl" placeholder="{{defaultVideoUrl}}"  @input="changeVideoUrlEvent"> <p class="loop-key"> T </p>
+        <div></div> <input class="video-url-input" v-model="videoUrl" placeholder="{{defaultVideoUrl}}"  @input="changeVideoUrlEvent"> <p class="loop-key"> {{loopButton.toUpperCase()}} </p>
       </div>
       <TimelineKeyboard v-if="timelineLength!=0 && videoWidth!=0" :timelineLength="timelineLength" :buttonLetters="buttonLetters" :width="videoWidth" :videoIdentificator="identificator"
       />
@@ -74,7 +74,8 @@ export default defineComponent({
   props: {
     defaultVideoUrl: String,
     buttonLetters: Array,
-    identificator: String
+    identificator: String,
+    loopButton: String
   },
   setup(props) {
     var videoPlayer = ref(null);
@@ -88,7 +89,6 @@ export default defineComponent({
     const changeVideoUrlEvent = (e) => {
       document.dispatchEvent(new CustomEvent('video-url-change', {'detail': {'url':e.data, 'video':props.identificator}}));
     };
-
 
     onMounted(() => {
       var videoElement = videoPlayer.value;
@@ -127,7 +127,7 @@ export default defineComponent({
       videoHeight.value = player.currentHeight();
       
       document.addEventListener('keydown', (e) => {
-          if(e.key == 't') {
+          if(e.key == props.loopButton) {
               player.abLoopPlugin.togglePauseAfterLooping();   
           }
       });
