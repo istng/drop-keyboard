@@ -1,0 +1,11 @@
+- change video on url change
+    change it on app as well
+    leave button letters as they are if time is right, if not fall back to some default for the ones that are out of bound
+- make letter upper case on UI, change them to be green start and red stop, or something like that, remove " start" and " end"
+- change color and style of timeline
+- style of loop button
+- no padding margin etc on html body etc
+- test with four videos
+- download and upload urls and timestamps to web as json
+- design recording section
+- responsiveness
