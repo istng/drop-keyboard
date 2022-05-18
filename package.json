@@ -5,11 +5,10 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint",
-    "postinstall": "npm run build",
-    "start": "node server.js"
+    "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@vueform/slider": "^2.0.10",
     "core-js": "^3.8.3",
     "video.js": "^7.18.1",
     "videojs-abloop": "^1.2.0",
@@ -23,28 +22,6 @@
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3",
-    "express": "^4.18.1",
-    "serve-static": "^1.15.0"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "@babel/eslint-parser"
-    },
-    "rules": {}
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
-  ]
+    "eslint-plugin-vue": "^8.0.3"
+  }
 }

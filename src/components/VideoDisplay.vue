@@ -1,164 +1,135 @@
 <template>
   <div class="video-display-container">
-    <div>
-      <video
-        ref="videoPlayer"
-        v-bind:id="'video'+identificator"
-        class="video-js vjs-default-skin vjs-16-9"
-      >
-      </video>
-      <div class="url-and-loop-key-container">
-        <div></div> <input class="video-url-input" v-model="videoUrl" placeholder="{{defaultVideoUrl}}"  @input="changeVideoUrlEvent"> <p class="loop-key"> {{loopButton.toUpperCase()}} </p>
-      </div>
-      <TimelineKeyboard v-if="timelineLength!=0 && videoWidth!=0" :timelineLength="timelineLength" :buttonLetters="buttonLetters" :width="videoWidth" :videoIdentificator="identificator"
+    <div class="video-and-levels">
+      <VideoJS :videoUrl='videoUrl' :loopStart='0' :loopEnd='5' :loopEnabled='true' :identificator='identificator' :speedRate='speedRate' :volumeLevel='volumeLevel'  :loopKey='loopKey' />
+      <VerticalSlider class="speed" :changeParentLevel='changeSpeedLevel' :minLevel='0.0' :maxLevel='2.0' />
+      <VerticalSlider class="volume" :changeParentLevel='changeVolumeLevel' :minLevel='0.0' :maxLevel='1.0'/>
+    </div>
+    <div class="url-and-loop-key">
+      <UrlInput :changeParentLevel='changeVideoUrl' :videoUrl='videoUrl' />
+      <p class="loop-key" >{{loopKey}}</p>
+    </div>
+    <div v-if="videoLength != 0" class="horizontal-sliders-container">
+      <HorizontalMultipleSlider class="horizontal-slider" v-for="k in keys" 
+        :key='k.key'
+        :identificator='identificator'
+        :tooltipKey='k.key'
+        :start='k.start'
+        :end='k.end'
+        :maxLength='videoLength'
+        :updateLoopSegment='updateLoopSegment'
       />
     </div>
-    <LevelSlider v-if="videoHeight!=0" class="level-slider" :height="videoHeight" :letter="'S'" :positionOffset="0.5" :videoIdentificator="identificator" />
-    <LevelSlider v-if="videoHeight!=0" class="level-slider volume-slider" :height="videoHeight" :letter="'V'" :positionOffset="0.97" :videoIdentificator="identificator" />
   </div>
 </template>
 
-<style>
-.video-display-container {
-  display: grid;
-  grid-template-columns: 1fr fit-content(20px) fit-content(20px);
-  column-gap: 10px;
-}
-.url-and-loop-key-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-.video-url-input {
-  border-radius: 5px;
-  align-self: center;
-  margin-right: 10px;
-}
-.loop-key {
-  align-self: center;
-  justify-self: start;
-  background: #4b6aba;
-  font-weight: bold;
-  border-radius: 5px;
-  padding: 4px;
-  text-align: center;
-}
-.level-slider {
-  align-self: center;
-}
-.volume-slider {
-  padding-right: 10px;
-}
-</style>
-
 <script>
 import {
-  defineComponent,
-  onMounted,
   ref
-} from "vue";
-import TimelineKeyboard from './TimelineKeyboard.vue';
-import LevelSlider from "./LevelSlider"
-import videojs from 'video.js';
-import 'video.js/dist/video-js.css';
-// eslint-disable-next-line no-unused-vars
-import videojsYoutube from "videojs-youtube";
-import abLoopPlugin from "videojs-abloop";
-abLoopPlugin(window, videojs);
+} from 'vue';
+import VideoJS from './VideoJS.vue';
+import VerticalSlider from './VerticalSlider.vue';
+import HorizontalMultipleSlider from './HorizontalMultipleSlider.vue';
+import UrlInput from './UrlInput.vue';
 
-export default defineComponent({
-  name: "VideoDisplay",
+export default {
+  name: 'VideoDisplay',
   components: {
-    TimelineKeyboard,
-    LevelSlider
+    VideoJS,
+    VerticalSlider,
+    HorizontalMultipleSlider,
+    UrlInput
   },
   props: {
-    defaultVideoUrl: String,
-    buttonLetters: Array,
     identificator: String,
-    loopButton: String
+    loopKey: String,
+    keys: Array,
+    updateLoopSegment: Function,
   },
   setup(props) {
-    var videoPlayer = ref(null);
-    var timelineLength = ref(0);
-    var videoUrl = ref(props.defaultVideoUrl);
-    var level = ref(0);
-    var videoWidth = ref(0);
-    var videoHeight = ref(0);
-    var lastKeyPressed = ref(props.buttonLetters[0].key);
+    var videoUrl = ref("https://www.youtube.com/watch?v=U1FxfR3lg6Q");
+    var speedRate = ref(1.0);
+    var volumeLevel = ref(1.0);
+    var videoLength = ref(0);
 
-    const changeVideoUrlEvent = (e) => {
-      document.dispatchEvent(new CustomEvent('video-url-change', {'detail': {'url':e.data, 'video':props.identificator}}));
+    const changeVideoUrl = (url) => {
+      //watch on VideoJS does not actually change the video without reloading dom
+      document.dispatchEvent(new CustomEvent('video-url-change'+props.identificator, {'detail': {'url':url.target.value}}));
+    };
+    const changeSpeedLevel = (level) => {
+      speedRate.value = parseFloat(level.target.value);
+    };
+    const changeVolumeLevel = (level) => {
+      volumeLevel.value = parseFloat(level.target.value);
     };
 
-    onMounted(() => {
-      var videoElement = videoPlayer.value;
-      var player = videojs(videoElement, {
-        "techOrder": ["youtube"],
-        "sources": [{
-          "type": "video/youtube",
-          "src": props.defaultVideoUrl
-        }],
-        plugins: {
-          abLoopPlugin: {}
+    document.addEventListener('keydown', (e) => {
+        if(e.key.toUpperCase() == props.loopKey) {
+          document.dispatchEvent(new CustomEvent('toggle-loop'+props.identificator));
         }
-      }, () => {
-        player.log('onPlayerReady', 'this');
-      });
-      player.ready(function () {
-        this.abLoopPlugin.setStart(props.buttonLetters[0].time).setEnd(props.buttonLetters[1].time).playLoop();
-      });
-      player.on('loadedmetadata', function() {
-        timelineLength.value = player.duration();
-        document.dispatchEvent(new CustomEvent('total-length-change', {'detail': {'length':timelineLength.value, 'video':props.identificator}}));
-      });
+    });
 
-      props.buttonLetters.forEach((buttonLetter, index) => {
-        document.addEventListener('keydown', (e) => {
-            if(e.key == buttonLetter.key) {
-              lastKeyPressed.value = buttonLetter.key;
-              player.abLoopPlugin.setStart(buttonLetter.time);
-              player.abLoopPlugin.setEnd(props.buttonLetters[index+1].time);
-              player.abLoopPlugin.playLoop();
-            }
-        });
-      })
-
-      videoWidth.value = player.currentWidth();
-      videoHeight.value = player.currentHeight();
-      
+    props.keys.forEach(key => {
       document.addEventListener('keydown', (e) => {
-          if(e.key == props.loopButton) {
-              player.abLoopPlugin.togglePauseAfterLooping();   
+          if(e.key.toUpperCase() == key.key) {
+            document.dispatchEvent(new CustomEvent('change-loop-segment'+props.identificator, {'detail': {'start': key.start, 'end': key.end}}));
           }
-      });
+      });      
+    })
 
-      document.addEventListener('level-offset-change', (e) => {
-        if(e.detail.video == props.identificator) {
-          if(e.detail.letter == "S") {
-            player.playbackRate(e.detail.level * 2);
-          }
-          if(e.detail.letter == "V") {
-            player.volume(e.detail.level);
-          }
-        }
-      });
-
-      document.addEventListener('video-url-change', (e) => {
-        if(e.detail.video == props.identificator)
-          player.src({src: e.detail.url, type: "video/youtube"});
-      });
+    document.addEventListener('change-video-length'+props.identificator, (e) => {
+      videoLength.value = e.detail;
     });
 
     return {
-      videoPlayer,
-      timelineLength,
       videoUrl,
-      level,
-      videoWidth,
-      videoHeight,
-      lastKeyPressed,
-      changeVideoUrlEvent
+      speedRate,
+      volumeLevel,
+      changeSpeedLevel,
+      changeVolumeLevel,
+      changeVideoUrl,
+      videoLength
     };
-  },
-});
+  }
+}
 </script>
+
+<style scoped>
+  .video-display-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 5px;
+  }
+  .video-and-levels {
+    display: grid;
+    grid-template-columns: 92% 20px 20px;
+    grid-template-rows: repeat(1, 1fr);
+    column-gap: 10px;
+  }
+  .url-and-loop-key {
+    display: flex;
+    justify-content: center;
+    column-gap: 30px;
+    align-items: center;
+  }
+  .horizontal-sliders-container {
+    margin-top: 30px;
+    display: grid;
+    grid-template-rows: repeat(1, 1fr);
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .horizontal-slider {
+    grid-column: 1 / 1;
+    grid-row: 1 / 1;
+  }
+  .loop-key {
+    align-self: center;
+    justify-self: start;
+    background: #4b6aba;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 4px;
+    text-align: center;
+    color: white;
+  }
+</style>
