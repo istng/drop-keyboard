@@ -164,28 +164,35 @@ body, html {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  margin-top: 10px;
+  overflow: hidden;
 }
 .app-container {
-  display: flex;
-  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
 }
 .videos-container {
   display: grid;
   grid-template-columns: repeat(2, 33%);
-  grid-template-rows: repeat(2, 33%);
+  grid-template-rows: repeat(2, 55%);
   justify-content: center;
-  gap: 20px;
+  grid-column-gap: 25px;
+  grid-row-gap: 10px;
 }
 .video-display {
-  align-self: center;
+  text-align: center;
 }
 .contact {
-  margin-top: 30px; 
+  margin-top: 6vh;
   margin-bottom: 0.6rem; 
   color: white;
   word-spacing: 0.8rem;
   justify-self: center;
   align-self: center;
+  text-align: center;
 }
 a, a:hover, a:visited, a:active {
   color: inherit;
