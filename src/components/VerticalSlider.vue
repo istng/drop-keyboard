@@ -1,5 +1,5 @@
 <template>
-    <input orient="vertical" type="range" :value="level" @input="changeParentLevel" :min='minLevel' :max='maxLevel' step="0.01">
+    <input class="vertical-slider" orient="vertical" type="range" :value="level" @input="changeParentLevel" :min='minLevel' :max='maxLevel' step="0.01">
 </template>
 
 <script>
@@ -25,4 +25,7 @@ export default {
 </script>
 
 <style scoped>
+  .vertical-slider {
+    -webkit-appearance: slider-vertical;
+  }
 </style>
